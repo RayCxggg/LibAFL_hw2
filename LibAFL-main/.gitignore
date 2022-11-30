@@ -35,7 +35,7 @@ test.dict
 fuzzer_*
 AFLplusplus
 test_*
-*_fuzzer
+# *_fuzzer
 *_harness
 
 # Ignore common dummy and logfiles
