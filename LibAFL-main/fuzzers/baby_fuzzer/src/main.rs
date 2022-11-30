@@ -1,13 +1,15 @@
 extern crate libafl;
 use libafl::{
-    bolts::{current_nanos, rands::StdRand, AsSlice},
+    bolts::{current_nanos, rands::StdRand, tuples::tuple_list, AsSlice},
     corpus::{InMemoryCorpus, OnDiskCorpus},
     events::SimpleEventManager,
     executors::{inprocess::InProcessExecutor, ExitKind},
+    feedbacks::{CrashFeedback, MaxMapFeedback},
     fuzzer::StdFuzzer,
     generators::RandPrintablesGenerator,
     inputs::{BytesInput, HasTargetBytes},
     monitors::SimpleMonitor,
+    observers::StdMapObserver,
     schedulers::QueueScheduler,
     state::StdState,
 };
@@ -38,6 +40,12 @@ fn main() {
         ExitKind::Ok
     };
 
+    // Feedback to rate the interestingness of an input
+    let mut feedback = MaxMapFeedback::new(&observer);
+
+    // A feedback to choose if an input is a solution or not
+    let mut objective = CrashFeedback::new();
+
     // Create an observation channel using the signals map
     let observer = StdMapObserver::new("signals", unsafe { &mut SIGNALS });
 
@@ -55,8 +63,8 @@ fn main() {
         // Corpus in which we store solutions (crashes in this example),
         // on disk so the user can get them after stopping the fuzzer
         OnDiskCorpus::new(PathBuf::from("./crashes")).unwrap(),
-        &mut (),
-        &mut (),
+        &mut feedback,
+        &mut objective,
     )
     .unwrap();
 
@@ -71,7 +79,7 @@ fn main() {
     let scheduler = QueueScheduler::new();
 
     // A fuzzer with feedbacks and a corpus scheduler
-    let mut fuzzer = StdFuzzer::new(scheduler, (), ());
+    let mut fuzzer = StdFuzzer::new(scheduler, feedback, objective);
 
     // Create the executor for an in-process function with just one observer
     let mut executor = InProcessExecutor::new(
