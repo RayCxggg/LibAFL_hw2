@@ -1,5 +1,4 @@
 extern crate libafl;
-
 use libafl::{
     bolts::{current_nanos, rands::StdRand, AsSlice},
     corpus::{InMemoryCorpus, OnDiskCorpus},
@@ -14,13 +13,23 @@ use libafl::{
 };
 use std::path::PathBuf;
 
-// #![allow(unused)]
+// Coverage map with explicit assignments due to the lack of instrumentation
+static mut SIGNALS: [u8; 16] = [0; 16];
+
+fn signals_set(idx: usize) {
+    unsafe { SIGNALS[idx] = 1 };
+}
+
 fn main() {
+    // The closure that we want to fuzz
     let mut harness = |input: &BytesInput| {
         let target = input.target_bytes();
         let buf = target.as_slice();
+        signals_set(0); // set SIGNALS[0]
         if buf.len() > 0 && buf[0] == 'a' as u8 {
+            signals_set(1); // set SIGNALS[1]
             if buf.len() > 1 && buf[1] == 'b' as u8 {
+                signals_set(2); // set SIGNALS[2]
                 if buf.len() > 2 && buf[2] == 'c' as u8 {
                     panic!("=)");
                 }
@@ -28,6 +37,10 @@ fn main() {
         }
         ExitKind::Ok
     };
+
+    // Create an observation channel using the signals map
+    let observer = StdMapObserver::new("signals", unsafe { &mut SIGNALS });
+
     // To test the panic:
     let input = BytesInput::new(Vec::from("abc"));
     #[cfg(feature = "panic")]
@@ -60,9 +73,15 @@ fn main() {
     // A fuzzer with feedbacks and a corpus scheduler
     let mut fuzzer = StdFuzzer::new(scheduler, (), ());
 
-    // Create the executor for an in-process function
-    let mut executor = InProcessExecutor::new(&mut harness, (), &mut fuzzer, &mut state, &mut mgr)
-        .expect("Failed to create the Executor");
+    // Create the executor for an in-process function with just one observer
+    let mut executor = InProcessExecutor::new(
+        &mut harness,
+        tuple_list!(observer),
+        &mut fuzzer,
+        &mut state,
+        &mut mgr,
+    )
+    .expect("Failed to create the Executor".into());
 
     // Generator of printable bytearrays of max size 32
     let mut generator = RandPrintablesGenerator::new(32);
