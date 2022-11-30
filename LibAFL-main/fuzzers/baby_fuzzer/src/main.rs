@@ -1,10 +1,20 @@
 extern crate libafl;
-use libafl::{
-    bolts::AsSlice,
-    executors::ExitKind,
-    inputs::{BytesInput, HasTargetBytes},
-};
 
+use libafl::{
+    bolts::{current_nanos, rands::StdRand, AsSlice},
+    corpus::{InMemoryCorpus, OnDiskCorpus},
+    events::SimpleEventManager,
+    executors::{inprocess::InProcessExecutor, ExitKind},
+    fuzzer::StdFuzzer,
+    generators::RandPrintablesGenerator,
+    inputs::{BytesInput, HasTargetBytes},
+    monitors::SimpleMonitor,
+    schedulers::QueueScheduler,
+    state::StdState,
+};
+use std::path::PathBuf;
+
+// #![allow(unused)]
 fn main() {
     let mut harness = |input: &BytesInput| {
         let target = input.target_bytes();
@@ -49,4 +59,16 @@ fn main() {
 
     // A fuzzer with feedbacks and a corpus scheduler
     let mut fuzzer = StdFuzzer::new(scheduler, (), ());
+
+    // Create the executor for an in-process function
+    let mut executor = InProcessExecutor::new(&mut harness, (), &mut fuzzer, &mut state, &mut mgr)
+        .expect("Failed to create the Executor");
+
+    // Generator of printable bytearrays of max size 32
+    let mut generator = RandPrintablesGenerator::new(32);
+
+    // Generate 8 initial inputs
+    state
+        .generate_initial_inputs(&mut fuzzer, &mut executor, &mut generator, &mut mgr, 8)
+        .expect("Failed to generate the initial corpus".into());
 }
