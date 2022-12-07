@@ -32,6 +32,12 @@ Frankenstein生成物理设备的快照（snapshot），然后用QEMU进行仿�
 ![](fran1.png)
 
 
-### 芯片集成和仿真
+### Chip Integration and Emulation
 
-Frankenstein利用InternalBlue来从Broadcom芯片的ROM中提取固件，并进行patch。
+Frankenstein利用InternalBlue来从Broadcom芯片的ROM中提取固件，并利用Patchram技术进行patch。但是，Patchram技术对硬件的分析能力很有限，考虑到蓝牙协议超过3000页的复杂程度，作者决定在仿真环境中进行fuzzing。
+
+Frankenstein没有采用常见的逆向分析方法来处理闭源固件，而是把固件当做整体来进行fuzz，它包括产生输入的虚拟调制器，并能够将固件连接到Linux BlueZ host。这需要实现中断处理和线程切换，Frankenstein选择将这些功能以C hook的形式插桩到固件中。
+
+
+### Full-Stack Approach
+
