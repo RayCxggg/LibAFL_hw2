@@ -30,3 +30,8 @@
 Frankenstein生成物理设备的快照（snapshot），然后用QEMU进行仿真来fuzz整个协议栈。over-the-air数据由一个虚拟的调制解调器发送，仿真的固件实现了线程和任务切换来fuzz多种handler，并连接到一个真实的Linux host。
 
 ![](fran1.png)
+
+
+### 芯片集成和仿真
+
+Frankenstein利用InternalBlue来从Broadcom芯片的ROM中提取固件，并进行patch。
