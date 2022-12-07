@@ -25,19 +25,17 @@
 6. 证明了用户无法通过关闭蓝牙来进行防御，因为芯片的重启机制没有被正确配置。
 
 
-## 基本设计思路
+## Frankenstein 设计框架
 
 Frankenstein生成物理设备的快照（snapshot），然后用QEMU进行仿真来fuzz整个协议栈。over-the-air数据由一个虚拟的调制解调器发送，仿真的固件实现了线程和任务切换来fuzz多种handler，并连接到一个真实的Linux host。
 
 ![](fran1.png)
 
-
-### Chip Integration and Emulation
-
 Frankenstein利用InternalBlue来从Broadcom芯片的ROM中提取固件，并利用Patchram技术进行patch。但是，Patchram技术对硬件的分析能力很有限，考虑到蓝牙协议超过3000页的复杂程度，作者决定在仿真环境中进行fuzzing。
-
 Frankenstein没有采用常见的逆向分析方法来处理闭源固件，而是把固件当做整体来进行fuzz，它包括产生输入的虚拟调制器，并能够将固件连接到Linux BlueZ host。这需要实现中断处理和线程切换，Frankenstein选择将这些功能以C hook的形式插桩到固件中。
 
+CYW20735开发板的处理器为ARM Cortex M4，使用的RTOS为ThreadOS。下面以CYW20735开发板为例，介绍Frankenstein的设计框架。
 
-### Full-Stack Approach
+
+### Bringing Firmware Images Back to Life
 
