@@ -60,14 +60,14 @@ Frankenstein使用标准的用户态QEMU进行仿真，并对固件进行了改�
 将frankenstein连接到操作系统后，就可以对蓝牙协议栈进行全面fuzzing。也就是说，Frankenstein针对的主要是Bluetooth controller部分，而host则是Linux BlueZ。Host与仿真controller部分主要通过UART传输HCI命令，在仿真中，Frankenstein使用Pseudo Terminal Master（PTM）设备来建立UART连接，并通过Linux `read`和`write`系统调用进行交互。固件产生的HCI事件会被`uart_SendAsynch` hook提取，并通过`write`发送给host。而host产生的HCI命令，会首先通过`read`读取UART数据包，然后调用`bttransport`线程中的接收状态机。
 
 
-### Non-Wireless Wireless Packet Injection
-
-
-
-
 ## 实验结果
 
-### Heap Sanitizer Hook Performance
+### 性能评测
 
+针对heap sanitizer的测试在搭载i5-3320M CPU的Thinkpad T430上进行。baseline没有设置heap sanitizer，运行平均耗时24.8ms。使用frankenstein heap sanitizer引入了额外46.8%的时间开销，而此前Unicorn的工作则引入了高达585.5%的时间开销。
 
-### CVEs
+![](heapresult.png)
+
+代码覆盖率方面，baseline组是将fuzz input整合成一个Binary Large Object（BLOB）的方案，实验组则将input分解为数据包和序列，通过交换数据包在序列中的位置来增加代码覆盖率。由于Frankenstein只对pairing阶段之前进行fuzz，因此总代码覆盖率为9.40%，针对LMP协议的覆盖率为2.76%，支持HCI后的覆盖率提升9.56%。
+
+![](codecoverage.png)
