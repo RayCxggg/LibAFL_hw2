@@ -54,3 +54,15 @@ Frankenstein使用标准的用户态QEMU进行仿真，并对固件进行了改�
 3. 基于硬件中断的计时器；
 4. 大概100个用于debug和实现的hook。
 
+
+### Talking to an Operating System
+
+
+
+
+## 实验结果
+
+### Heap Sanitizer Hook Performance
+
+
+### CVEs
