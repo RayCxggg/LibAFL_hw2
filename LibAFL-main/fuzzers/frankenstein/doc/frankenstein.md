@@ -47,3 +47,10 @@ Frankenstein使用标准的用户态QEMU进行仿真，并对固件进行了改�
 
 
 ### Hooking for Portability
+
+作者设计了一套轻量的hook机制，用来对固件进行修改，利用Broadcom的Patchram技术，还可以短暂修改ROM中的代码。它允许Frankenstein追踪函数调用、分析中断处理句柄和QEMU、真实硬件上的寄存器状态。例如，对蓝牙LMP协议的fuzzing需要如下几类hook：
+1. 线程间的上下文切换；
+2. HCI支持；
+3. 基于硬件中断的计时器；
+4. 大概100个用于debug和实现的hook。
+
