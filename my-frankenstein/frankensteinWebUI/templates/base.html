@@ -1,0 +1,194 @@
+
+<script src="/static/canvasjs.js"></script>
+<link rel="stylesheet" href="/static/main.css" />
+<link rel="stylesheet" href="/static/xterm.min.css" />
+<script src="/static/xterm.min.js"></script>
+<script src="/static/jquery-3.4.1.min.js"></script>
+
+{% if title != "" %}
+<title>{{ title }}</title>
+{% endif %}
+
+
+<script>
+  //parse and filter json
+  function convertActivityMap(map, start, stop, symbol_lookup) {
+    var dataPoints = []
+    var last_addr = start;
+    dataPoints.push({x:start, y:0});
+    for (var addr in map) {
+      addr = parseInt(addr);
+
+      if (addr < start || addr > stop) continue;
+
+      if (last_addr + 4 < addr) {
+        dataPoints.push({x:last_addr, y:0});
+        dataPoints.push({x:addr, y:0});
+      }
+
+      //add point
+      var point = {x:addr, y: Math.log2(map[addr])+1};
+      if ((addr & 0xfffffffe) in symbol_lookup) {
+        point.indexLabel = symbol_lookup[addr & 0xfffffffe];
+        //point.indexLabelOrientation = "vertical";
+        //point.indexLabelPlacement = "outside";
+      }
+      dataPoints.push(point);
+
+      if (addr < last_addr) {alert(addr);alert(last_addr);}
+      last_addr = addr;
+    }
+    dataPoints.push({x:last_addr, y:0});
+    dataPoints.push({x:stop, y:0});
+
+    return dataPoints;
+  }
+
+
+  function activityMap(container, title, exec_map, read_map, write_map, start, stop, symbol_lookup) {
+    var exec = convertActivityMap(exec_map, start, stop, symbol_lookup);
+    var read = convertActivityMap(read_map, start, stop, symbol_lookup);
+    var write = convertActivityMap(write_map, start, stop, symbol_lookup);
+
+    //add dom element
+    var newDiv = document.createElement("div"); 
+    newDiv.id = Math.random().toString(36).substring(2, 15);
+    newDiv.style = "height: 300px; width: 100%;";
+    var container = document.getElementById(container); 
+    container.appendChild(newDiv);
+
+    //draw chart
+    var chart = new CanvasJS.Chart(newDiv.id,
+    {
+      backgroundColor: "#040404",
+
+      zoomEnabled: true,
+      title:{
+        fontColor:"#d08000",
+        text: title
+      },
+      axisX:{
+        lineColor: "#d08000",
+        tickColor: "#d08000",
+        fontColor:"#d08000",
+        titleFontColor:"#d08000",
+        labelFontColor:"#d08000",
+
+        labelFormatter: function (e) {
+               return "0x" + e.value.toString(16);  
+        }
+       },
+      axisY:{
+        lineColor: "#d08000",
+        tickColor: "#d08000",
+        fontColor:"#d08000",
+        titleFontColor:"#d08000",
+        labelFontColor:"#d08000",
+
+        labelFormatter: function (e) {
+               return Math.floor(2**e.value);  
+        }
+      }, 
+      toolTip:{
+        backgroundColor: "#040404",
+        fontColor:"#d08000",
+        borderColor: "#d08000",
+        cornerRadius: 0,
+        borderThickness: 1,
+
+        shared: true,
+        contentFormatter: function (e) {
+          var addr = e.entries[0].dataPoint.x
+          if ((addr & 0xfffffffe) in symbol_lookup) {
+            var name = symbol_lookup[addr & 0xfffffffe]
+            return "0x"+addr.toString(16) + " ("+name+")";
+          }
+
+          return "0x"+addr.toString(16);
+        }
+      },
+      legend: {
+        fontColor:"#d08000"
+        
+      },
+      data: [
+        {type: "line", name: "Read", showInLegend: true, dataPoints: read, color: "#00d000"},
+        {type: "line", name: "Write", showInLegend: true, dataPoints: write, color: "#d00000"},
+        {type: "line", name: "Exec", showInLegend: true, dataPoints: exec, color: "#d000d0"},
+      ]
+    });
+
+    chart.render();
+  }
+
+
+  function create_reverse_symbol_lookup(symbols) {
+    var reverse = {}
+    for (name in symbols) { 
+      var addr = symbols[name];
+      reverse[addr & 0xfffffffe] = name;
+    }
+    return reverse;
+  }
+
+  //Helper function to download files generated in js
+  function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:application/octet-stream;base64,' + btoa(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
+
+</script>
+
+
+<div class="topnav">
+  <h2> Frankenstein Build System </h2>
+</div>
+
+
+<div class="sidenav">
+  {% for projectName, emulators in projects.items %}
+    <a href="project?projectName={{ projectName }}">{{ projectName }} </a> <br>
+    {% for emulatorName in emulators %}
+      <a href="emulate?projectName={{ projectName }}&emulatorName={{ emulatorName }}">|--{{ emulatorName }}</a> <br>
+    {% endfor %}
+    <br>
+  {% endfor %}
+</div>
+
+
+<div class="main">
+  {% block content %}
+  {% endblock %}
+</div>
+
+
+
+
+<script>
+    var coll = document.getElementsByClassName("collapsible");
+    for (var i = 0; i < coll.length; i++) {
+      var content = coll[i].nextElementSibling;
+      content.style.display = "none";
+
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+          if (typeof content.ondisplay != "undefined" && content.ondisplay != null)
+            content.ondisplay();
+        }
+      });
+    }
+</script>
