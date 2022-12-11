@@ -1,4 +1,4 @@
-# LibAFL plus Fuzzer
+# Frankenstein with LibAFL
 
 This repository contains the source code for Rust Homework 2.
 
