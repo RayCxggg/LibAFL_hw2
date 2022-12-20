@@ -10,11 +10,8 @@ use libafl::{
 use libafl_qemu::{
     drcov::QemuDrCovHelper,
     //asan::QemuAsanHelper,
-    edges,
-    edges::QemuEdgeCoverageHelper,
     elf::EasyElf,
     emu::Emulator,
-    MmapPerms,
     QemuExecutor,
     QemuHooks,
     QemuInstrumentationFilter,
