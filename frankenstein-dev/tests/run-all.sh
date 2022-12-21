@@ -4,11 +4,11 @@
 root=$(git rev-parse --show-toplevel)
 tmpdir=$(mktemp -d -t frankenstein-XXXX)
 echo Using tempdir $tmpdir
-for fname in $(git ls-files); do
-    [[ -d $(dirname "$tmpdir/$fname") ]] || mkdir -p $(dirname "$tmpdir/$fname")
-    cp "$root/$fname" "$tmpdir/$fname"
-done
-cd "$tmpdir"
+# for fname in $(git ls-files); do
+#     [[ -d $(dirname "$tmpdir/$fname") ]] || mkdir -p $(dirname "$tmpdir/$fname")
+#     cp "$root/$fname" "$tmpdir/$fname"
+# done
+# cd "$tmpdir"
 
 set -e
 
