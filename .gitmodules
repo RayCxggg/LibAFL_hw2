@@ -1,6 +1,3 @@
-[submodule "frankenstein"]
-	path = frankenstein
-	url = https://github.com/seemoo-lab/frankenstein.git
 [submodule "internalblue"]
 	path = internalblue
 	url = https://github.com/seemoo-lab/internalblue.git
