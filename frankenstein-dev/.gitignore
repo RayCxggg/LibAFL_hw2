@@ -1,7 +1,0 @@
-*.pyc
-*.core
-*.o
-*.exe
-*.patch
-*.gdb_history
-internalblue_stackdump.bin
