@@ -17,7 +17,11 @@ In general, having the project built is sufficient to run emulation with QEMU. A
 qemu-arm projects/CYW20735B1/gen/execute.exe
 ```
 
-And this is where we ran into trouble. Initially in order to have the latest QEMU environment, we built our own filesystem, linux kernel and QEMU from scratch. But when we tried emulation, qemu-arm always gave the same Segmentation fault as below:
+And this is where we ran into trouble. 
+
+## Problem
+
+Initially in order to have the latest QEMU environment, we built our own filesystem, linux kernel and QEMU from scratch. But when we tried emulation, qemu-arm always gave the same Segmentation fault as below:
 
 ```
 qemu: uncaught target signal 11 (Segmentation fault) - core dumped
@@ -105,13 +109,95 @@ Section Headers:
 
 0x00210006 is located in `.Segment_0x200000`, which proves that `_binary_segment_groups_default_Segment_0x200000_bin_start ()` isn't accessible since we don't have the source code.
 
-After that we spent more than a week working on frankenstein, thinking that there might be some mistakes messing up the environment. Until we don't know what to do at all, we removed the lates QEMU built from source code and reinstalled through `apt`. And frankenstein magically came alive in the very outdated version of QEMU:
+After that we spent more than a week working on frankenstein with almost no documentation available, thinking that there might be some mistakes messing up the environment. But there is almost no QEMU related code and instrumentation in frankenstein, so it is unclear why QEMU version affectes. We found many hardcoded addresses in frankenstein source code:
+```
+// frankenstein-dev/projects/CYW20735B1/emulation/hci.h:
+// the UART interface seems to have a DMA like receive
+    char state = *(char *)(0x249f70 + 0xd); // rx_machine state
+    print_var(state);
+    if (state == 6)
+    {
+        void *data_ptr = *(void **)(0x249f70 + 0x10);  // rx_data_ptr
+        uint32_t len = *(uint32_t *)(0x249f70 + 0x14); // rx_len
+...
+
+//frankenstein-dev/projects/CYW20735B1/emulation/common.h:
+ *((void **)0x02003d4) = clean_exit; //Here is an alternative return from interrupt... XXX
+```
+
+These hardcode implementation are related to packet reception and interrupt handlers which are crucial. We suspect the lower layout of QEMU emulation may change, so the hardcode addresses trigger the core fault.
+
+Until we don't know what to do at all, we removed the lates QEMU built from source code and reinstalled one through `apt`. And frankenstein magically came alive in the very outdated version of QEMU:
 ```
 qemu-arm version 4.2.1 (Debian 1:4.2-3ubuntu6.24)
 Copyright (c) 2003-2019 Fabrice Bellard and the QEMU Project developers
 ```
 
-But it was reasonable because frankenstein was published in 2020. We don't know what happens to QEMU in the past 3 years.
+But it was reasonable because frankenstein was published in 2020. A lot of changes could happen to QEMU in the past 3 years.
+
+## LibAFL QEMU
+
+So we port the emulation environment into LibAFL QEMU. LibAFL checks the `CUSTOM_QEMU_DIR` to see whether a LibAFL QEMU is installed. 
+```
+// LibAFL-main/libafl_qemu/build_linux.rs: pub fn build()
+let qemu_path = if let Some(qemu_dir) = custum_qemu_dir.as_ref() {
+        Path::new(&qemu_dir).to_path_buf()
+    } else {
+        let qemu_path = target_dir.join(QEMU_DIRNAME);
+
+        let qemu_rev = target_dir.join("QEMU_REVISION");
+        if qemu_rev.exists()
+            && fs::read_to_string(&qemu_rev).expect("Failed to read QEMU_REVISION") != QEMU_REVISION
+        {
+            drop(fs::remove_dir_all(&qemu_path));
+        }
+
+        if !qemu_path.is_dir() {
+            println!(
+                "cargo:warning=Qemu not found, cloning with git ({})...",
+                QEMU_REVISION
+            );
+```            
+
+If not, it will git clone a QEMU(version 7.2) and checkout to its patched version with commit ID 
+```
+const QEMU_REVISION: &str = "ddb71cf43844f8848ae655ca696bdfc3fb7839f1";
+```
+
+Since LibAFL project was only established a year ago, it patches the latest QEMU 7.2 with Rust. frankenstein crashes in LibAFL QEMU as expected:
+```
+qemu: uncaught target signal 11 (Segmentation fault) - core dumped
+**
+ERROR:../accel/tcg/cpu-exec.c:978:cpu_exec: assertion failed: (cpu == current_cpu)
+Bail out! ERROR:../accel/tcg/cpu-exec.c:978:cpu_exec: assertion failed: (cpu == current_cpu)
+```
+
+## Analysis
+
+The QEMU environment is still at startup since the [code]() is really simple:
+```
+// Initialize QEMU
+    // env::remove_var("LD_LIBRARY_PATH");
+    let args = vec![
+        "qemu-arm".to_string(),
+        "../../../frankenstein-dev/projects/CYW20735B1/gen/execute.exe".to_string(),
+    ];
+    let env: Vec<(String, String)> = Vec::new();
+    let emu = Emulator::new(&args, &env);
+
+    emu.set_breakpoint(XML_RPC_CALL);
+    unsafe {
+        emu.run();
+    }
+    emu.remove_breakpoint(XML_RPC_CALL);
+
+    println!("QEMU initialized");
+```
+
+And it failed with the same output with unpatched QEMU 7.2. Currently, the only solution is to reimplement LibAFL patches on QEMU 4.2 which proved to work with frankenstein. But the workload would be extremely heavy and patch an outdated QEMU is meaningless despite finishing this homework. So we don't know what to do now. Anyone help us please!
+
+
+We have finished the input generation part of frankenstein with LibAFL. 
 
 ## Reference
 
