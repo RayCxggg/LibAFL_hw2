@@ -109,7 +109,7 @@ Section Headers:
 
 0x00210006 is located in `.Segment_0x200000`, which proves that `_binary_segment_groups_default_Segment_0x200000_bin_start ()` isn't accessible since we don't have the source code.
 
-After that we spent more than a week working on frankenstein with almost no documentation available, thinking that there might be some mistakes messing up the environment. But there is almost no QEMU related code and instrumentation in frankenstein, so it is unclear why QEMU version affectes. We found many hardcoded addresses in frankenstein source code:
+After that we spent more than a week working on frankenstein with almost no documentation available, thinking that there might be some mistakes messing up the environment. But there is almost no QEMU related code and instrumentation in frankenstein, so it is unclear why QEMU version affects. We found many hardcoded addresses in frankenstein source code:
 ```
 // frankenstein-dev/projects/CYW20735B1/emulation/hci.h:
 // the UART interface seems to have a DMA like receive
@@ -127,7 +127,7 @@ After that we spent more than a week working on frankenstein with almost no docu
 
 These hardcode implementation are related to packet reception and interrupt handlers which are crucial. We suspect the lower layout of QEMU emulation may change, so the hardcode addresses trigger the core fault.
 
-Until we don't know what to do at all, we removed the lates QEMU built from source code and reinstalled one through `apt`. And frankenstein magically came alive in the very outdated version of QEMU:
+Until we don't know what to do at all, we removed the latest QEMU built from source code and reinstalled one through `apt`. And frankenstein magically came alive in the very outdated version of QEMU:
 ```
 qemu-arm version 4.2.1 (Debian 1:4.2-3ubuntu6.24)
 Copyright (c) 2003-2019 Fabrice Bellard and the QEMU Project developers
@@ -137,7 +137,7 @@ But it was reasonable because frankenstein was published in 2020. A lot of chang
 
 ## LibAFL QEMU
 
-So we port the emulation environment into LibAFL QEMU. LibAFL checks the `CUSTOM_QEMU_DIR` to see whether a LibAFL QEMU is installed. 
+So we port the emulation environment into `libafl_qemu`. LibAFL checks the `CUSTOM_QEMU_DIR` to see whether a LibAFL QEMU is installed:
 ```
 // LibAFL-main/libafl_qemu/build_linux.rs: pub fn build()
 let qemu_path = if let Some(qemu_dir) = custum_qemu_dir.as_ref() {
@@ -159,12 +159,12 @@ let qemu_path = if let Some(qemu_dir) = custum_qemu_dir.as_ref() {
             );
 ```            
 
-If not, it will git clone a QEMU(version 7.2) and checkout to its patched version with commit ID 
+If not, it will git clone a QEMU 7.2 and checkout to its patched version with commit ID 
 ```
 const QEMU_REVISION: &str = "ddb71cf43844f8848ae655ca696bdfc3fb7839f1";
 ```
 
-Since LibAFL project was only established a year ago, it patches the latest QEMU 7.2 with Rust. frankenstein crashes in LibAFL QEMU as expected:
+Since LibAFL project was only established a year ago, it patches the latest __QEMU 7.2__ with Rust. frankenstein crashes in LibAFL QEMU as expected:
 ```
 qemu: uncaught target signal 11 (Segmentation fault) - core dumped
 **
