@@ -5,6 +5,7 @@ use which::which;
 const QEMU_URL: &str = "https://github.com/AFLplusplus/qemu-libafl-bridge";
 const QEMU_DIRNAME: &str = "qemu-libafl-bridge";
 const QEMU_REVISION: &str = "ddb71cf43844f8848ae655ca696bdfc3fb7839f1";
+// const QEMU_REVISION: &str = "b44aa9a8f86608aadede0e24831c5109ae61f2c2";
 
 fn build_dep_check(tools: &[&str]) {
     for tool in tools {
@@ -106,6 +107,7 @@ pub fn build() {
     }
 
     let custum_qemu_dir = env::var_os("CUSTOM_QEMU_DIR").map(|x| x.to_string_lossy().to_string());
+
     let custum_qemu_no_build = env::var("CUSTOM_QEMU_NO_BUILD").is_ok();
 
     let out_dir = env::var_os("OUT_DIR").unwrap();
@@ -137,6 +139,7 @@ pub fn build() {
                 "cargo:warning=Qemu not found, cloning with git ({})...",
                 QEMU_REVISION
             );
+            // println!("CUSTOM_QEMU_DIR: {:?}", custum_qemu_dir);
             fs::create_dir_all(&qemu_path).unwrap();
             Command::new("git")
                 .current_dir(&qemu_path)

@@ -1,3 +1,4 @@
+use core::time::Duration;
 use std::{env, path::PathBuf, process};
 
 use libafl::{
@@ -15,10 +16,14 @@ use libafl_qemu::{
     QemuExecutor,
 };
 
+const XML_RPC_CALL: u32 = 0x087d8ba0;
+
 #[cfg(target_os = "linux")]
 pub fn main() {
     let corpus_dirs = [PathBuf::from("./corpus")];
     let objective_dir = PathBuf::from("./crashes");
+
+    println!("running!");
 
     // Initialize QEMU
     // env::remove_var("LD_LIBRARY_PATH");
@@ -29,9 +34,11 @@ pub fn main() {
     let env: Vec<(String, String)> = Vec::new();
     let emu = Emulator::new(&args, &env);
 
+    emu.set_breakpoint(XML_RPC_CALL);
     unsafe {
         emu.run();
     }
+    emu.remove_breakpoint(XML_RPC_CALL);
 
     println!("QEMU initialized");
 
