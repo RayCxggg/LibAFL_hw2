@@ -194,10 +194,35 @@ The QEMU environment is still at startup since the [code]() is really simple:
     println!("QEMU initialized");
 ```
 
-And it failed with the same output with unpatched QEMU 7.2. Currently, the only solution is to reimplement LibAFL patches on QEMU 4.2 which proved to work with frankenstein. But the workload would be extremely heavy and patch an outdated QEMU is meaningless despite finishing this homework. So we don't know what to do now. Anyone help us please!
+And it failed with the same output with unpatched QEMU 7.2. __Currently, the only solution is to reimplement LibAFL patches on QEMU 4.2 which proved to work with frankenstein. But the workload would be extremely heavy and patching an outdated QEMU is meaningless despite finishing this homework.__ 
+
+So we don't know what to do now. Anyone help us please!
 
 
 We have finished the input generation part of frankenstein with LibAFL. 
+
+## Reproduction
+
+In order to run frankenstein, the following dependencies are needed:
+```
+apt install qemu-user gcc-arm-none-eabi gcc-multilib
+```
+
+Note that `qemu-user` must be installed through `apt` to acquire an outdated version. Out tested enviroment is 
+```
+qemu-arm version 4.2.1 (Debian 1:4.2-3ubuntu6.24)
+Linux 5.4.0-135-generic
+Ubuntu 20.04 LTS
+gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+Python 3.8.10
+```
+
+To reproduce the crash, under `LibAFL-main/fuzzers/fran` run:
+```
+cargo clean
+cargo make build
+cargo make run
+```
 
 ## Reference
 

@@ -29,8 +29,8 @@ pub fn main() {
     // env::remove_var("LD_LIBRARY_PATH");
     let args = vec![
         "qemu-arm".to_string(),
-        // "../../../frankenstein-dev/projects/CYW20735B1/gen/execute.exe".to_string(),
-        "/opt/ccslab2/LibAFL_hw2/frankenstein-dev/projects/CYW20735B1/gen/execute.exe".to_string(),
+        "../../../frankenstein-dev/projects/CYW20735B1/gen/execute.exe".to_string(),
+        // "/opt/ccslab2/LibAFL_hw2/frankenstein-dev/projects/CYW20735B1/gen/execute.exe".to_string(),
     ];
     let env: Vec<(String, String)> = Vec::new();
     let emu = Emulator::new(&args, &env);
