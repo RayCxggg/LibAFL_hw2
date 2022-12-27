@@ -2,7 +2,7 @@
 #include "common.h"
 #include "queue.h"
 
-int n_steps = 128;
+int n_steps = 1;
 void acl_idle_loop()
 {
     while (1)

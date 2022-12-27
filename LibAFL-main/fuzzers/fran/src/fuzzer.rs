@@ -9,7 +9,7 @@ use libafl::{
     generators::RandPrintablesGenerator,
     inputs::{BytesInput, HasTargetBytes},
     mutators::scheduled::{havoc_mutations, StdScheduledMutator},
-    observers::StdMapObserver,
+    observers::{StdMapObserver, TimeObserver},
     schedulers::QueueScheduler,
     stages::mutational::StdMutationalStage,
     state::StdState,
@@ -20,6 +20,9 @@ use std::io::{stdin, stdout, Write};
 use std::process::{Child, Command, Stdio};
 use std::{env, path::PathBuf, process};
 
+/// Coverage map with explicit assignments due to the lack of instrumentation
+static mut SIGNALS: [u8; 16] = [0; 16];
+
 pub fn fuzz() {
     let corpus_dirs = [PathBuf::from("./corpus")];
     let objective_dir = PathBuf::from("./crashes");
@@ -27,10 +30,15 @@ pub fn fuzz() {
     let mut harness = |input: &BytesInput| {
         let target = input.target_bytes();
         let buf = target.as_slice();
+
+        // write input to OnDiskCorpus
+        // cat ./corpus > qemu-arm
+
         // Command::new("qemu-arm")
         //     .arg("../../../frankenstein-dev/projects/CYW20735B1/gen/acl_fuzz.exe")
         //     .spawn()
         //     .unwrap();
+
         println!("Accepted input testcase: {:?}", buf);
         ExitKind::Ok
     };
@@ -42,8 +50,11 @@ pub fn fuzz() {
     // such as the notification of the addition of a new item to the corpus
     let mut mgr = SimpleEventManager::new(mon);
 
+    // Create an observation channel using the signals map
+    let observer = StdMapObserver::new("signals", unsafe { &mut SIGNALS });
+
     // Feedback to rate the interestingness of an input
-    // let mut feedback = MaxMapFeedback::new(&observer);
+    let mut feedback = MaxMapFeedback::new(&time_observer);
 
     // A feedback to choose if an input is a solution or not
     let mut objective = CrashFeedback::new();
@@ -60,24 +71,30 @@ pub fn fuzz() {
         // Corpus in which we store solutions (crashes in this example),
         // on disk so the user can get them after stopping the fuzzer
         OnDiskCorpus::new(PathBuf::from("./crashes")).unwrap(),
-        &mut (),
+        &mut feedback,
         &mut objective,
     )
     .unwrap();
 
     // A fuzzer with feedbacks and a corpus scheduler
-    let mut fuzzer = StdFuzzer::new(scheduler, (), objective);
+    let mut fuzzer = StdFuzzer::new(scheduler, feedback, objective);
 
     // Create the executor for an in-process function
-    let mut executor = InProcessExecutor::new(&mut harness, (), &mut fuzzer, &mut state, &mut mgr)
-        .expect("Failed to create the Executor");
+    let mut executor = InProcessExecutor::new(
+        &mut harness,
+        tuple_list!(time_observer),
+        &mut fuzzer,
+        &mut state,
+        &mut mgr,
+    )
+    .expect("Failed to create the Executor");
 
     // Generator of printable bytearrays of max size 32
     let mut generator = RandPrintablesGenerator::new(32);
 
     // Generate 8 initial inputs
     state
-        .generate_initial_inputs(&mut fuzzer, &mut executor, &mut generator, &mut mgr, 8)
+        .generate_initial_inputs(&mut fuzzer, &mut executor, &mut generator, &mut mgr, 1)
         .expect("Failed to generate the initial corpus".into());
 
     // Setup a mutational stage with a basic bytes mutator
