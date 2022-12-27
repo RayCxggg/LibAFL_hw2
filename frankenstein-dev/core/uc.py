@@ -72,7 +72,7 @@ class emu:
                 else:
                     data = section.data()
 
-                print("Found %s @ 0x%x - 0x%x (%d bytes)" % (name, addr, addr+len(data), len(data)))
+                # print("Found %s @ 0x%x - 0x%x (%d bytes)" % (name, addr, addr+len(data), len(data)))
                 if emulator_base == addr:
                     self.emulator_base_start = emulator_base
                     self.emulator_base_stop = emulator_base + size
@@ -103,19 +103,19 @@ class emu:
 
 
         for addr, size in self.maps:
-            print("Mapping 0x%x - 0x%x (%d bytes)" % (addr, addr+size, size))
+            # print("Mapping 0x%x - 0x%x (%d bytes)" % (addr, addr+size, size))
             self.uc.mem_map(addr, size, UC_PROT_ALL)
 
 
             
         for addr,size,data in self.state:
-            print("Loading 0x%x - 0x%x (%d bytes)" % (addr, addr+len(data), len(data)))
+            # print("Loading 0x%x - 0x%x (%d bytes)" % (addr, addr+len(data), len(data)))
             self.uc.mem_write(addr, data)
 
         #stack
         stack = 0xdead0000
         stack_size = 16384
-        print("Mapping Stack 0x%x - 0x%x (%d bytes)" % (stack, stack+stack_size, stack_size))
+        # print("Mapping Stack 0x%x - 0x%x (%d bytes)" % (stack, stack+stack_size, stack_size))
         self.uc.mem_map(stack, stack_size, UC_PROT_ALL)
         self.uc.reg_write(arm_const.UC_ARM_REG_SP, stack + stack_size)
 
@@ -289,26 +289,27 @@ class emu:
 
         #XXX
         memdif_rendered = self.render_mem_diff()
-        sys.stderr.write(self.stderr)
-        sys.stderr.write("\n"+memdif_rendered+"\n")
+        # sys.stderr.write(self.stderr)
+        # sys.stderr.write("\n"+memdif_rendered+"\n")
 
         self.state = new_state
 
         # disassemble current instruction
-        try:
-            pc = self.regs["pc"]
-            md = capstone.Cs(capstone.CS_ARCH_ARM, capstone.CS_MODE_THUMB)
-            instr = list(md.disasm(self.uc.mem_read(pc, 4), pc))[0]
-            instr = instr.mnemonic + "   " + instr.op_str 
-        except:
-            import traceback; traceback.print_exc()
-            instr = hexlify(self.uc.mem_read(pc, 4))
+        # try:
+        #     pc = self.regs["pc"]
+        #     print(pc)
+        #     md = capstone.Cs(capstone.CS_ARCH_ARM, capstone.CS_MODE_THUMB)
+        #     instr = list(md.disasm(self.uc.mem_read(pc, 4), pc))[0]
+        #     instr = instr.mnemonic + "   " + instr.op_str 
+        # except:
+        #     import traceback; traceback.print_exc()
+        #     instr = hexlify(self.uc.mem_read(pc, 4))
 
         # Save tracepoint object
         tp = {}
         tp["reason"] = reason
         tp["regs"] = self.regs
-        tp["instr"] = instr
+        # tp["instr"] = instr
         tp["memdiff"] = memdiff
         tp["memdif_rendered"] = memdif_rendered
         tp["stdout"] = self.stdout
@@ -410,8 +411,8 @@ class emu:
         except Exception as e:
             self.exception = str(e)
             print(e)
-            import traceback; traceback.print_exc()
-            print(hex(self.uc.reg_read(arm_const.UC_ARM_REG_PC)))
+            # import traceback; traceback.print_exc()
+            # print(hex(self.uc.reg_read(arm_const.UC_ARM_REG_PC)))
             self.trace_state_change(str(e))
 
 

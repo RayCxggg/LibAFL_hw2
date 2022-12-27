@@ -45,7 +45,7 @@ void _start()
 
     acl_fd = 0;
 
-    print("line before cont()\n");
+    // print("line before cont()\n");
 
     // alarm(1);
     cont();

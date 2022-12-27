@@ -404,6 +404,10 @@ def emulate(request):
                 stdin = ""
 
             binaryPath = os.path.join(projectPath, "gen", request.GET["emulatorName"])
+            print(binaryPath)
+            print(stdin)
+            print(tracepoints)
+            print(project.cfg["config"]["EMULATION_CODE_BASE"])
             emulator = uc.emu(binaryPath, stdin, tracepoints, emulator_base=project.cfg["config"]["EMULATION_CODE_BASE"])
             emulator.run()
 
