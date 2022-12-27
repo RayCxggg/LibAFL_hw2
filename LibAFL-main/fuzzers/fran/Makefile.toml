@@ -1,15 +1,15 @@
 # Variables
 [env]
 PROJECT_DIR = { script = ["pwd"] }
-CROSS_CC = "arm-linux-gnueabi-gcc"
+# CROSS_CC = "arm-linux-gnueabi-gcc"
 # CUSTOM_QEMU_DIR = "/usr/share/qemu"
 
-# Build the fuzzer
-[tasks.build]
+[tasks.clean]
 command = "cargo"
-args = ["build", "--release"]
+args = ["clean"]
 
 # Run the fuzzer
 [tasks.run]
 command = "cargo"
 args = ["run"]
+dependencies = ["clean"]

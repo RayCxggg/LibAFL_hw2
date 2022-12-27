@@ -6,5 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-libafl = { path = "../../libafl/", features = ["qemu_cli"]  }
-libafl_qemu = { path = "../../libafl_qemu/", features = ["arm", "usermode"] }
+libafl = { path = "../../libafl/" }
+# libafl = { path = "../../libafl/", features = ["qemu_cli"]  }
+# libafl_qemu = { path = "../../libafl_qemu/", features = ["arm", "usermode"] }

@@ -1,6 +1,33 @@
-# frankenstein fuzzer 
+# frankenstein with LibAFL
 
 This folder contains the frankenstein fuzzer for Bluetooth embedded firmware.
+
+## Tutorial
+
+### Link Manager Protocol fuzzing
+
+```
+cat /dev/urandom | qemu-arm projects/CYW20735B1/gen/lmp_fuzz.exe
+```
+
+When a testcase triggers CVE-2019-11516, qemu catches a Segmentation fault and stops fuzzing:
+```
+qemu: uncaught target signal 11 (Segmentation fault) - core dumped
+Segmentation fault (core dumped)
+```
+
+### ACL mode fuzzing
+
+```
+cat /dev/urandom | qemu-arm projects/CYW20735B1/gen/acl_fuzz.exe
+```
+
+### Host Controller Interface fuzzing
+
+```
+cat /dev/urandom | qemu-arm projects/CYW20735B1/gen/hci_attach.exe
+```
+
 
 ## Troubleshooting
 
