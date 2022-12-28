@@ -54,7 +54,7 @@ pub fn fuzz() {
     let observer = StdMapObserver::new("signals", unsafe { &mut SIGNALS });
 
     // Feedback to rate the interestingness of an input
-    let mut feedback = MaxMapFeedback::new(&time_observer);
+    let mut feedback = MaxMapFeedback::new(&observer);
 
     // A feedback to choose if an input is a solution or not
     let mut objective = CrashFeedback::new();
@@ -82,7 +82,7 @@ pub fn fuzz() {
     // Create the executor for an in-process function
     let mut executor = InProcessExecutor::new(
         &mut harness,
-        tuple_list!(time_observer),
+        tuple_list!(observer),
         &mut fuzzer,
         &mut state,
         &mut mgr,
