@@ -25,7 +25,7 @@ use crate::{
     },
     executors::ExitKind,
     inputs::UsesInput,
-    observers::{DifferentialObserver, Observer, ObserversTuple},
+    observers::{DifferentialObserver, Observer, ObserversTuple, MapObserver},
     Error,
 };
 

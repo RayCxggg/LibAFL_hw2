@@ -148,6 +148,7 @@ class emu:
             if self.symbols[name] <= pc and  self.symbols[name] + 8 >= pc:
                 #print name
                 if name == "read":
+                    print("read")
                     fd = uc.reg_read(arm_const.UC_ARM_REG_R0)
                     target = uc.reg_read(arm_const.UC_ARM_REG_R1)
                     size = uc.reg_read(arm_const.UC_ARM_REG_R2)
@@ -159,6 +160,7 @@ class emu:
                     self.uc.reg_write(arm_const.UC_ARM_REG_R0, len(data))
 
                 elif name == "write":
+                    print("write")
                     fd = uc.reg_read(arm_const.UC_ARM_REG_R0)
                     target = uc.reg_read(arm_const.UC_ARM_REG_R1)
                     size = uc.reg_read(arm_const.UC_ARM_REG_R2)

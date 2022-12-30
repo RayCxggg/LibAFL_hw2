@@ -9,7 +9,7 @@ use libafl::{
     generators::RandPrintablesGenerator,
     inputs::{BytesInput, HasTargetBytes},
     mutators::scheduled::{havoc_mutations, StdScheduledMutator},
-    observers::{StdMapObserver, TimeObserver},
+    observers::{ConstMapObserver},
     schedulers::QueueScheduler,
     stages::mutational::StdMutationalStage,
     state::StdState,
@@ -21,17 +21,29 @@ use std::io::{stdin, stdout, Write};
 use std::process::{Child, Command, Stdio};
 use std::{env, path::PathBuf, process};
 use serde_json::{Value};
+use serde::{Serialize, Deserialize};
 
 /// Coverage map with explicit assignments due to the lack of instrumentation
-static mut SIGNALS: [u8; 16] = [0; 16];
+static mut SIGNALS: [u32; 1] = [0; 1];
 
-fn read_json(raw_json:&str) -> Value {
-    let parsed: Value = serde_json::from_str(raw_json).unwrap();
+#[derive(Serialize, Deserialize)]
+struct RetAns
+{
+    ExitType: String,
+    Coverage: u32,
+}
+
+fn read_json(raw_json:&str) -> RetAns {
+    let parsed: RetAns = serde_json::from_str(raw_json).unwrap();
     return parsed
 }
 
 fn print_type_of<T>(_: &T) {
     println!("{}", std::any::type_name::<T>())  
+}
+
+fn signals_set(val: u32) {
+    unsafe { SIGNALS[0] = val };
 }
 
 pub fn fuzz() {
@@ -42,14 +54,22 @@ pub fn fuzz() {
         let target = input.target_bytes();
         let buf = target.as_slice();
 
+        let mut argStr:String = String::from("");
+        for item in buf.iter(){
+            argStr = argStr + &String::from(" ");
+            argStr = argStr + &item.to_string();
+        }
         // write input to OnDiskCorpus
         // cat ./corpus > qemu-arm
         let output = Command::new("python3")
                     .arg("./run_fuzz.py")
+                    .arg(argStr)
                     .output().expect("wrong!");
         let line = String::from_utf8(output.stdout).expect("wrong!");
-        let parsed: Value = read_json(&line);
-        println!("{}", parsed["Coverage"]);
+        let parsed: RetAns = read_json(&line);
+        signals_set(parsed.Coverage);
+
+        println!("{}", parsed.Coverage);
 
         ExitKind::Ok
     };
@@ -62,7 +82,7 @@ pub fn fuzz() {
     let mut mgr = SimpleEventManager::new(mon);
 
     // Create an observation channel using the signals map
-    let observer = StdMapObserver::new("signals", unsafe { &mut SIGNALS });
+    let observer: ConstMapObserver<'_, u32, 1> = ConstMapObserver::new("signals", unsafe { &mut SIGNALS });
 
     // Feedback to rate the interestingness of an input
     let mut feedback = MaxMapFeedback::new(&observer);
@@ -109,12 +129,12 @@ pub fn fuzz() {
         .expect("Failed to generate the initial corpus".into());
 
     // Setup a mutational stage with a basic bytes mutator
-    // let mutator = StdScheduledMutator::new(havoc_mutations());
-    // let mut stages = tuple_list!(StdMutationalStage::new(mutator));
+    let mutator = StdScheduledMutator::new(havoc_mutations());
+    let mut stages = tuple_list!(StdMutationalStage::new(mutator));
 
-    // // fuzz_loop will request a testcase for each iteration to the fuzzer using the
-    // // scheduler and then it will invoke the stage.
-    // fuzzer
-    //     .fuzz_loop(&mut stages, &mut executor, &mut state, &mut mgr)
-    //     .expect("Error in the fuzzing loop");
+    // fuzz_loop will request a testcase for each iteration to the fuzzer using the
+    // scheduler and then it will invoke the stage.
+    fuzzer
+        .fuzz_loop(&mut stages, &mut executor, &mut state, &mut mgr)
+        .expect("Error in the fuzzing loop");
 }
