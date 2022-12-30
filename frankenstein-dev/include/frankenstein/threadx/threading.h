@@ -23,19 +23,19 @@ Print message about the context switch
 */
 void _tx_thread_system_return_debug() {
 
-    print("\033[;31mContext switch ");
-    if (print_thrd)
-        print_thrd(_tx_thread_current_ptr);
-    else
-        print_ptr(_tx_thread_current_ptr);
+    // print("\033[;31mContext switch ");
+    // if (print_thrd)
+    //     print_thrd(_tx_thread_current_ptr);
+    // else
+    //     print_ptr(_tx_thread_current_ptr);
 
-    print(" -> ");
+    // print(" -> ");
 
-    if (print_thrd)
-        print_thrd(_tx_thread_execute_ptr);
-    else
-        print_ptr(_tx_thread_execute_ptr);
-    print("\033[;00m\n");
+    // if (print_thrd)
+    //     print_thrd(_tx_thread_execute_ptr);
+    // else
+    //     print_ptr(_tx_thread_execute_ptr);
+    // print("\033[;00m\n");
 }
 
 /*

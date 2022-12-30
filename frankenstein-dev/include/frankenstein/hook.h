@@ -312,82 +312,82 @@ asm(
         
     #define trace_color "\033[;36m"
     void trace_prehook_0(struct saved_regs *regs, void *func_name) {  \
-        print(trace_color);
-        print("lr=");
-        print_ptr(regs->lr);
-        print(" ");
-        puts(func_name);
-        print("(");
-        print(")\033[;00m");
+        // print(trace_color);
+        // print("lr=");
+        // print_ptr(regs->lr);
+        // print(" ");
+        // puts(func_name);
+        // print("(");
+        // print(")\033[;00m");
     }
 
     void trace_prehook_1(struct saved_regs *regs, void *func_name) {  \
-        print(trace_color);
-        print("lr=");
-        print_ptr(regs->lr);
-        print(" ");
-        puts(func_name);
-        print("(");
-        print_ptr(regs->r0);
-        print(")\033[;00m");
+        // print(trace_color);
+        // print("lr=");
+        // print_ptr(regs->lr);
+        // print(" ");
+        // puts(func_name);
+        // print("(");
+        // print_ptr(regs->r0);
+        // print(")\033[;00m");
     }
 
     void trace_prehook_2(struct saved_regs *regs, void *func_name) {  \
-        print(trace_color);
-        print("lr=");
-        print_ptr(regs->lr);
-        print(" ");
-        puts(func_name);
-        print("(");
-        print_ptr(regs->r0);
-        print(", ");
-        print_ptr(regs->r1);
-        print(")\033[;00m");
+        // print(trace_color);
+        // print("lr=");
+        // print_ptr(regs->lr);
+        // print(" ");
+        // puts(func_name);
+        // print("(");
+        // print_ptr(regs->r0);
+        // print(", ");
+        // print_ptr(regs->r1);
+        // print(")\033[;00m");
     }
 
     void trace_prehook_3(struct saved_regs *regs, void *func_name) {  \
-        print(trace_color);
-        print("lr=");
-        print_ptr(regs->lr);
-        print(" ");
-        puts(func_name);
-        print("(");
-        print_ptr(regs->r0);
-        print(", ");
-        print_ptr(regs->r1);
-        print(", ");
-        print_ptr(regs->r2);
-        print(")\033[;00m");
+        // print(trace_color);
+        // print("lr=");
+        // print_ptr(regs->lr);
+        // print(" ");
+        // puts(func_name);
+        // print("(");
+        // print_ptr(regs->r0);
+        // print(", ");
+        // print_ptr(regs->r1);
+        // print(", ");
+        // print_ptr(regs->r2);
+        // print(")\033[;00m");
     }
 
     void trace_prehook_4(struct saved_regs *regs, void *func_name) {  \
-        print(trace_color);
-        print("lr=");
-        print_ptr(regs->lr);
-        print(" ");
-        puts(func_name);
-        print("(");
-        print_ptr(regs->r0);
-        print(", ");
-        print_ptr(regs->r1);
-        print(", ");
-        print_ptr(regs->r2);
-        print(", ");
-        print_ptr(regs->r3);
-        print(")\033[;00m");
+        // print(trace_color);
+        // print("lr=");
+        // print_ptr(regs->lr);
+        // print(" ");
+        // puts(func_name);
+        // print("(");
+        // print_ptr(regs->r0);
+        // print(", ");
+        // print_ptr(regs->r1);
+        // print(", ");
+        // print_ptr(regs->r2);
+        // print(", ");
+        // print_ptr(regs->r3);
+        // print(")\033[;00m");
     }
 
 
     uint32_t trace_posthook_true(uint32_t retval, void *func_name) {
-        print(trace_color " = ");
-        print_ptr(retval);
-        print(";\n");
-        print("\033[;00m");
+        // print(trace_color " = ");
+        // print_ptr(retval);
+        // print(";\n");
+        // print("\033[;00m");
         return retval;
     }
 
     uint32_t trace_posthook_false(uint32_t retval, void *func_name) {
-        print(trace_color ";\n\033[;00m");
+        // print(trace_color ";\n\033[;00m");
         return retval;
     }
 

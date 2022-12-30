@@ -152,34 +152,34 @@ void bcs_tick() {
     bcs_advance_clock();
 
     //bcs_info();
-    if (tb == &pageScanTaskStorage)
-        { print("tb = pageScan\n"); } //pagescan(); }
-    else if (tb == &pageTaskStorage)
-        {print("tb = page\n");  page(); }
-    else if (tb == &inqScanTaskStorage)
-        print("tb = inqScan\n")
-    else if (tb == &inqTaskStorage)
-        { print("tb = inq\n"); inquiry(); }
-    else if (tb == &g_tca_taskVars)
-        { print("tb = tca\n"); bcs_dummy_task(); }
-    else if (tb == &aclTaskStorage)
-        { print("tb = acl\n"); acl(); }
-    else if (tb == (void *)0x22539c)
-        { print("tb = conntask?\n"); bcs_dummy_task(); }
-    else if (tb == &afhRssiScanTaskStorage)
-        { print("tb = afhRssiScan\n");}
+    // if (tb == &pageScanTaskStorage)
+    //     { print("tb = pageScan\n"); } //pagescan(); }
+    // else if (tb == &pageTaskStorage)
+    //     {print("tb = page\n");  page(); }
+    // else if (tb == &inqScanTaskStorage)
+    //     print("tb = inqScan\n")
+    // else if (tb == &inqTaskStorage)
+    //     { print("tb = inq\n"); inquiry(); }
+    // else if (tb == &g_tca_taskVars)
+    //     { print("tb = tca\n"); bcs_dummy_task(); }
+    // else if (tb == &aclTaskStorage)
+    //     { print("tb = acl\n"); acl(); }
+    // else if (tb == (void *)0x22539c)
+    //     { print("tb = conntask?\n"); bcs_dummy_task(); }
+    // else if (tb == &afhRssiScanTaskStorage)
+    //     { print("tb = afhRssiScan\n");}
 
-    //LE
-    else if (tb == &bcsulp_advTaskStorage)
-        { print("tb = adv\n"); adv();}
-    else if (tb == &bcsulp_scanTaskStorage)
-        { print("tb = bcsulp_scan\n"); le_scan();}
-    else if (tb == &bcsulp_initTaskStorage)
-        { print("tb = bcsulp_init\n"); le_scan();}//page_fd = 0; pagescan(); page_fd=-1;}
-    else if (tb == &bcsulp_aclTaskStorage)
-        { print("tb = le_conn\n"); le_conn();}
-    else
-        print_var(tb);
+    // //LE
+    // else if (tb == &bcsulp_advTaskStorage)
+    //     { print("tb = adv\n"); adv();}
+    // else if (tb == &bcsulp_scanTaskStorage)
+    //     { print("tb = bcsulp_scan\n"); le_scan();}
+    // else if (tb == &bcsulp_initTaskStorage)
+    //     { print("tb = bcsulp_init\n"); le_scan();}//page_fd = 0; pagescan(); page_fd=-1;}
+    // else if (tb == &bcsulp_aclTaskStorage)
+    //     { print("tb = le_conn\n"); le_conn();}
+    // else
+    //     print_var(tb);
 
 
     //Slot01 / Slot11

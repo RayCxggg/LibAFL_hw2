@@ -19,7 +19,7 @@ and notify the firmware for new HCI data
 */
 void hci_rx_poll(int timeout_ms)
 {
-    print("hci_rx_poll\n");
+    // print("hci_rx_poll\n");
 
     if (hci_rx_fd == -1)
         return;
@@ -53,17 +53,17 @@ void hci_rx_poll(int timeout_ms)
         void *data_ptr = *(void **)(0x249f70 + 0x10);  // rx_data_ptr
         uint32_t len = *(uint32_t *)(0x249f70 + 0x14); // rx_len
         int ret;
-        print_var(data_ptr);
-        print("\n");
-        print_var(len);
-        print("\n");
-        print("\033[;32mRx DMA ");
+        // print_var(data_ptr);
+        // print("\n");
+        // print_var(len);
+        // print("\n");
+        // print("\033[;32mRx DMA ");
         for (ret = -1; ret < 0; ret = read(hci_rx_fd, data_ptr, len))
             ;
         *(uint32_t *)(0x249f70 + 0x3c) = ret;
         hexdump(data_ptr, len);
-        print("\033[;00m\n");
-        print_var(*(uint32_t *)(0x249f70 + 0x3c));
+        // print("\033[;00m\n");
+        // print_var(*(uint32_t *)(0x249f70 + 0x3c));
         // interruptvector_DMA_DONE(); //XXX this is the actual interrupt handler called invoking uart_ReceiveDMADoneInterrupt
         uart_ReceiveDMADoneInterrupt(0x249f70); // Invoking isr directly
     }

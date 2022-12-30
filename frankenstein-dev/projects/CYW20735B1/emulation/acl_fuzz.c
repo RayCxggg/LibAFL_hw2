@@ -16,7 +16,7 @@ void acl_idle_loop()
 
         if (!n_steps--)
         {
-            print("Exit\n");
+            // print("Exit\n");
             exit(1);
         }
         bcs_tick();
@@ -26,7 +26,7 @@ void acl_idle_loop()
 
 void _start()
 {
-    print("\n this is acl_fuzz.c\n");
+    // print("\n this is acl_fuzz.c\n");
     patch_code();
     idle_loop = acl_idle_loop;
 

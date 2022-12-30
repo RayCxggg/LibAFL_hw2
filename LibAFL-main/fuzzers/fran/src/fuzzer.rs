@@ -15,13 +15,24 @@ use libafl::{
     state::StdState,
 };
 
+use std::io::{BufReader, BufRead};
 use core::time::Duration;
 use std::io::{stdin, stdout, Write};
 use std::process::{Child, Command, Stdio};
 use std::{env, path::PathBuf, process};
+use serde_json::{Value};
 
 /// Coverage map with explicit assignments due to the lack of instrumentation
 static mut SIGNALS: [u8; 16] = [0; 16];
+
+fn read_json(raw_json:&str) -> Value {
+    let parsed: Value = serde_json::from_str(raw_json).unwrap();
+    return parsed
+}
+
+fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())  
+}
 
 pub fn fuzz() {
     let corpus_dirs = [PathBuf::from("./corpus")];
@@ -33,13 +44,13 @@ pub fn fuzz() {
 
         // write input to OnDiskCorpus
         // cat ./corpus > qemu-arm
+        let output = Command::new("python3")
+                    .arg("./run_fuzz.py")
+                    .output().expect("wrong!");
+        let line = String::from_utf8(output.stdout).expect("wrong!");
+        let parsed: Value = read_json(&line);
+        println!("{}", parsed["Coverage"]);
 
-        // Command::new("qemu-arm")
-        //     .arg("../../../frankenstein-dev/projects/CYW20735B1/gen/acl_fuzz.exe")
-        //     .spawn()
-        //     .unwrap();
-
-        println!("Accepted input testcase: {:?}", buf);
         ExitKind::Ok
     };
 
@@ -98,12 +109,12 @@ pub fn fuzz() {
         .expect("Failed to generate the initial corpus".into());
 
     // Setup a mutational stage with a basic bytes mutator
-    let mutator = StdScheduledMutator::new(havoc_mutations());
-    let mut stages = tuple_list!(StdMutationalStage::new(mutator));
+    // let mutator = StdScheduledMutator::new(havoc_mutations());
+    // let mut stages = tuple_list!(StdMutationalStage::new(mutator));
 
-    // fuzz_loop will request a testcase for each iteration to the fuzzer using the
-    // scheduler and then it will invoke the stage.
-    fuzzer
-        .fuzz_loop(&mut stages, &mut executor, &mut state, &mut mgr)
-        .expect("Error in the fuzzing loop");
+    // // fuzz_loop will request a testcase for each iteration to the fuzzer using the
+    // // scheduler and then it will invoke the stage.
+    // fuzzer
+    //     .fuzz_loop(&mut stages, &mut executor, &mut state, &mut mgr)
+    //     .expect("Error in the fuzzing loop");
 }

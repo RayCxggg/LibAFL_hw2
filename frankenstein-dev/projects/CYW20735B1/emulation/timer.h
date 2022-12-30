@@ -72,10 +72,10 @@ uint32_t next_timer_timestamp_us() {
 void check_and_handle_timers(uint32_t elapsed_time_us) {
     timer1value -= elapsed_time_us;
     if (next_timer_timestamp_us() < timer1value) return;
-    print("\033[;31mTimer 2\033[;00m\n");
-    show_timers();
+    // print("\033[;31mTimer 2\033[;00m\n");
+    // show_timers();
     interruptvector_TIMER2_DONE();
-    print("\033[;31mTimer 2 Done\033[;00m\n");
+    // print("\033[;31mTimer 2 Done\033[;00m\n");
 }
 
 
