@@ -4,4 +4,5 @@
 *.exe
 *.patch
 *.gdb_history
+qemu-arm
 internalblue_stackdump.bin
