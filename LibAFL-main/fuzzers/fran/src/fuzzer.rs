@@ -6,7 +6,7 @@ use libafl::{
     executors::{inprocess::InProcessExecutor, ExitKind},
     feedbacks::{CrashFeedback, MaxMapFeedback},
     fuzzer::{Fuzzer, StdFuzzer},
-    generators::RandPrintablesGenerator,
+    generators::RandBytesGenerator,
     inputs::{BytesInput, HasTargetBytes},
     mutators::scheduled::{havoc_mutations, StdScheduledMutator},
     observers::{ConstMapObserver},
@@ -68,8 +68,16 @@ pub fn fuzz() {
         let line = String::from_utf8(output.stdout).expect("wrong!");
         let parsed: RetAns = read_json(&line);
         signals_set(parsed.Coverage);
+        if parsed.ExitType != "Exit" {
+            #[cfg(unix)]
+            panic!("Artificial bug triggered =)");
+            #[cfg(windows)]
+            unsafe {
+                write_volatile(0 as *mut u32, 0);
+            }
+        }
 
-        println!("{}", parsed.Coverage);
+        println!("Coverage: {}", parsed.Coverage);
 
         ExitKind::Ok
     };
@@ -98,7 +106,7 @@ pub fn fuzz() {
         // RNG
         StdRand::with_seed(current_nanos()),
         // Corpus that will be evolved, we keep it in memory for performance
-        InMemoryCorpus::new(),
+        OnDiskCorpus::new(PathBuf::from("./corpus")).unwrap(),
         // Corpus in which we store solutions (crashes in this example),
         // on disk so the user can get them after stopping the fuzzer
         OnDiskCorpus::new(PathBuf::from("./crashes")).unwrap(),
@@ -120,12 +128,11 @@ pub fn fuzz() {
     )
     .expect("Failed to create the Executor");
 
-    // Generator of printable bytearrays of max size 32
-    let mut generator = RandPrintablesGenerator::new(32);
+    let mut generator = RandBytesGenerator::new(512);
 
     // Generate 8 initial inputs
     state
-        .generate_initial_inputs(&mut fuzzer, &mut executor, &mut generator, &mut mgr, 1)
+        .generate_initial_inputs(&mut fuzzer, &mut executor, &mut generator, &mut mgr, 4)
         .expect("Failed to generate the initial corpus".into());
 
     // Setup a mutational stage with a basic bytes mutator

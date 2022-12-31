@@ -18,7 +18,7 @@ void lmp_idle_loop() {
             if (buff) {
                 lm_LmpBBAcked(buff);
                 if (_tx_thread_execute_ptr != &g_pmu_idle_IdleThread) {
-                    // print("\033[;31mLmp Tx Ack, thread changed\033[;00m\n");
+                    print("\033[;31mLmp Tx Ack, thread changed\033[;00m\n");
                     contextswitch();
                 }
             } else break;
@@ -36,7 +36,7 @@ void lmp_idle_loop() {
 
         check_and_handle_timers(100);
         if (_tx_thread_execute_ptr != &g_pmu_idle_IdleThread) {
-            // print("\033[;31mLmp Rx, thread changed\033[;00m\n");
+            print("\033[;31mLmp Rx, thread changed\033[;00m\n");
             contextswitch();
         }
 
@@ -63,6 +63,7 @@ void _start() {
     int sockfd = -1;
     hci_tx_fd = sockfd;
     hci_rx_fd = sockfd;
+
     alarm(1);
     cont();
 }

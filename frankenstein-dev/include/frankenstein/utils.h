@@ -178,12 +178,18 @@ int _puts(const char *x);
 
 #define DEBUG
 #ifdef DEBUG
-    #define print_ptr(x) _print_ptr((size_t)x)
-    #define print(x) puts(x);
-    int puts(const char *s) { write(2, (s), strlen(s));}
-    #define print_var(x) {print(#x" = "); print_ptr(x); print("\n");}
-    #define fatal(x) {print(x); *((int *)0xbeefbeef) = 42;}
-    #define hexdump(c,n) _hexdump((char *)c,n)
+    // #define print_ptr(x) _print_ptr((size_t)x)
+    // #define print(x) puts(x);
+    // int puts(const char *s) { write(2, (s), strlen(s));}
+    #define print_ptr(x) ;
+    #define print(x) ;
+    #define print_var(x) ;
+    #define fatal(x) ;
+    #define hexdump(c,n) ;
+    int puts(const char *s) { ;}
+    // #define print_var(x) {print(#x" = "); print_ptr(x); print("\n");}
+    // #define fatal(x) {print(x); *((int *)0xbeefbeef) = 42;}
+    // #define hexdump(c,n) _hexdump((char *)c,n)
     #define print_caller() {int lr; asm("mov %0, lr": "=r" (lr)); print_ptr(lr);}
 #else
     int puts(const char *s) {}

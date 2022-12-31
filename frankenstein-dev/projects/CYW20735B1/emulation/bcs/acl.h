@@ -1,29 +1,27 @@
 
-// This falg can bes set to extract LMP messages over HCI
+//This falg can bes set to extract LMP messages over HCI
 extern int diag_sendLmpPktFlag;
 
-// file descriptor for ACL messages
+//file descriptor for ACL messages
 int acl_fd = 0;
 
 #define ACL_ROLE_MASTER 0
 #define ACL_ROLE_SLAVE 1
 
 int acl_role = ACL_ROLE_SLAVE;
-// the snapshot I've taken had an open acl slave connection
+//the snapshot I've taken had an open acl slave connection
 
 int injected = 0;
 
-void acl()
-{
-    if (acl_fd == -1)
-        return;
+void acl() {
+    if (acl_fd == -1) return;
 
-    if ((acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b10) ||
-        (acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b00))
-    {
+    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b10 ) || 
+        ( acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b00 ) ){
+
 
         print("Tx Done\n");
-        sr_status = 0x1d8;
+        sr_status =  0x1d8;
         phy_status = 0x4;
         bluetoothCoreInt_C();
         contextswitch();
@@ -45,27 +43,22 @@ void acl()
         print_var((tx_pkt_pyld_hdr >> 2) & 0x3ff)
     }
 
-    // Rx Hdr Int
-    if ((acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b00) ||
-        (acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b10))
-    {
+    //Rx Hdr Int
+    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b00 ) || 
+        ( acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b10 ) ){
         print("Rx Hdr Done\n");
-        sr_status = 0x1c8;
+        sr_status =  0x1c8;
         phy_status = 0x3;
 
-        print("acl() before read()\n");
         pkt_hdr_status = pkt_log = 0;
-        if (read(acl_fd, &pkt_hdr_status, 2) == 0)
-            exit(1);
+        if ( read(acl_fd, &pkt_hdr_status, 2) == 0) exit(1);
         read(acl_fd, &pkt_log, 2);
         pkt_hdr_status |= 0x40000;
         pkt_log |= 0x40000;
 
-        print("acl() after read()\n");
-
-        // if (rtx_dma_ctl == 1) {
-        //     sr_status =  0x1d8;
-        //     phy_status = 0x2;
+        //if (rtx_dma_ctl == 1) {
+        //    sr_status =  0x1d8;
+        //    phy_status = 0x2;
 
         //    ////Acknowledge Packet ACL Specific?
         //    ////print_var(wait_for_ack)
@@ -97,40 +90,37 @@ void acl()
         //    //}
         //}
 
+
         print_var(pkt_hdr_status);
         print_var(pkt_log);
         bluetoothCoreInt_C();
         contextswitch();
     }
 
-    // Rx Interrupt
-    // if(rtx_dma_ctl == 1 && (pcx_btclk & 3) == 0b01) {
+    //Rx Interrupt
+    //if(rtx_dma_ctl == 1 && (pcx_btclk & 3) == 0b01) {
     int len;
-    // if((pcx_btclk & 3) == 0b01) {
-    if ((acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b01) ||
-        (acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b11))
-    {
+    //if((pcx_btclk & 3) == 0b01) {
+    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b01 ) || 
+        ( acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b11 ) ){
         print("Rx Done\n");
-        sr_status = 0x1c8;
+        sr_status =  0x1c8;
         phy_status = 0x1;
 
-        // len = (pkt_log >> 5) & 0x1f;
+        //len = (pkt_log >> 5) & 0x1f;
         len = (pkt_log >> 5) & 0x3ff;
         len = 32;
         print_var(len);
 
-        if (rtx_dma_ctl != 3 && dmaActiveRxBuffer)
-        {
-            if (read(acl_fd, dmaActiveRxBuffer + 4, len) < 1)
-                exit(1);
+        if (rtx_dma_ctl != 3 && dmaActiveRxBuffer) {
+            if (read(acl_fd, dmaActiveRxBuffer+4, len) < 1) exit(1);
             print_var(dmaActiveRxBuffer);
-            // for (unsigned char i=0; i < 240; i++) dmaActiveRxBuffer[i] = i;
+            //for (unsigned char i=0; i < 240; i++) dmaActiveRxBuffer[i] = i; 
             print("pcktdata (DMA): ");
             hexdump(dmaActiveRxBuffer, len);
             print("\n");
         }
-        else
-        {
+        else {
             print("pcktdata: ");
             read(acl_fd, (void *)0x370000, len);
             hexdump(0x370000, len);
@@ -146,7 +136,7 @@ void acl()
 void acl_over_tcp() {
     if (acl_fd == -1) return;
 
-    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b10 ) ||
+    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b10 ) || 
         ( acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b00 ) ){
 
         print("Tx Done\n");
@@ -163,7 +153,7 @@ void acl_over_tcp() {
     }
 
     //Rx Hdr Int
-    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b00 ) ||
+    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b00 ) || 
         ( acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b10 ) ){
         print("Rx Hdr Done\n");
         sr_status =  0x1c8;
@@ -190,7 +180,7 @@ void acl_over_tcp() {
     //if(rtx_dma_ctl == 1 && (pcx_btclk & 3) == 0b01) {
     int len;
     //if((pcx_btclk & 3) == 0b01) {
-    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b01 ) ||
+    if (( acl_role == ACL_ROLE_SLAVE && (pcx_btclk & 3) == 0b01 ) || 
         ( acl_role == ACL_ROLE_MASTER && (pcx_btclk & 3) == 0b11 ) ){
         print("Rx Done\n");
         sr_status =  0x1c8;
@@ -203,7 +193,7 @@ void acl_over_tcp() {
         if (rtx_dma_ctl != 3 && dmaActiveRxBuffer) {
             if (read(0, dmaActiveRxBuffer, len) < 1) exit(1);
             print_var(dmaActiveRxBuffer);
-            //for (unsigned char i=0; i < 240; i++) dmaActiveRxBuffer[i] = i;
+            //for (unsigned char i=0; i < 240; i++) dmaActiveRxBuffer[i] = i; 
             print("pcktdata: ");
             hexdump(dmaActiveRxBuffer, len);
             print("\n");

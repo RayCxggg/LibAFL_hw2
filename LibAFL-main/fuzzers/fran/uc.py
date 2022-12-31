@@ -18,6 +18,7 @@ class emu:
     """
     def __init__(self, fname, stdin, watchpoints=[], drcov=True, emulator_base=None, fw_entry_symbol="cont"):
         self.stdin = stdin
+        # print(self.stdin)
         self.exception = ""
         self.uc = Uc(UC_ARCH_ARM, UC_MODE_ARM)
         self.fname = fname
@@ -165,14 +166,15 @@ class emu:
 
                     data = uc.mem_read(target, size)
                     if fd == 1:
-                        self.stdout += data.decode("utf-8")
-                        sys.stdout.write(data.decode("utf-8"))
+                        self.stdout += data.decode("utf-8", "ignore")
+                        # sys.stdout.write(data.decode("utf-8", "ignore"))
                     else:
-                        self.stderr += data.decode("utf-8")
-                        sys.stderr.write(data.decode("utf-8"))
+                        self.stderr += data.decode("utf-8", "ignore")
+                        # sys.stderr.write(data.decode("utf-8", "ignore"))
 
                 else:
-                    print("unknown intr")
+                    pass
+                    # print("unknown intr")
 
     """
     Implement memory and code watchpoints

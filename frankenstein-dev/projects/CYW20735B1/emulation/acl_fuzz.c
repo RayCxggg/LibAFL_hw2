@@ -2,11 +2,10 @@
 #include "common.h"
 #include "queue.h"
 
-int n_steps = 64;
-void acl_idle_loop()
-{
-    while (1)
-    {
+
+int n_steps = 128;
+void acl_idle_loop() {
+    while(1) {
         check_and_handle_timers(312);
 
         hci_rx_poll(1);
@@ -14,9 +13,8 @@ void acl_idle_loop()
         hci_rx_poll(1);
         contextswitch();
 
-        if (!n_steps--)
-        {
-            // print("Exit\n");
+        if (!n_steps--) {
+            // print("Exit\n"); 
             exit(1);
         }
         bcs_tick();
@@ -24,29 +22,25 @@ void acl_idle_loop()
     }
 }
 
-void _start()
-{
-    // print("\n this is acl_fuzz.c\n");
+void _start() {
     patch_code();
     idle_loop = acl_idle_loop;
 
-#ifdef DEBUG
-    diag_sendLmpPktFlag = 0;
-    hci_tx_fd = 1;
-    hci_dump_raw_enable = 1;
-#else
-    diag_sendLmpPktFlag = 0;
-#endif
+    #ifdef DEBUG
+        diag_sendLmpPktFlag = 0;
+        hci_tx_fd = 1;
+        hci_dump_raw_enable = 1;
+    #else
+        diag_sendLmpPktFlag = 0;
+    #endif
 
-    // int sockfd = tcp_connect(127,0,0,1,31337);
+    //int sockfd = tcp_connect(127,0,0,1,31337);
     int sockfd = -1;
     hci_tx_fd = sockfd;
     hci_rx_fd = sockfd;
 
     acl_fd = 0;
 
-    // print("line before cont()\n");
-
-    // alarm(1);
+    //alarm(1);
     cont();
 }

@@ -2,7 +2,6 @@ import json
 import uc
 import sys
 
-# print("OK?")
 a = ''
 c = ''
 for i in range(len(sys.argv)):
@@ -14,8 +13,8 @@ for i in range(len(b)):
     if b[i] != '':
         c += chr(int(b[i]))
 
-emulator = uc.emu('./acl_fuzz.exe', c.encode("UTF-8"), [], emulator_base=0xbeef000)
-# emulator = uc.emu('projects/CYW20735B1/gen/lmp_fuzz.exe', b'', [], emulator_base=0xbeef000)
+emulator = uc.emu('./lmp_fuzz.exe', c.encode("UTF-8"), [], emulator_base=0xbeef000)
+# emulator = uc.emu('./acl_fuzz.exe', c.encode("UTF-8"), [], emulator_base=0xbeef000)
 emulator.run()
 
 results = emulator.results

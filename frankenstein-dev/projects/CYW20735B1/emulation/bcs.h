@@ -152,46 +152,46 @@ void bcs_tick() {
     bcs_advance_clock();
 
     //bcs_info();
-    // if (tb == &pageScanTaskStorage)
-    //     { print("tb = pageScan\n"); } //pagescan(); }
-    // else if (tb == &pageTaskStorage)
-    //     {print("tb = page\n");  page(); }
-    // else if (tb == &inqScanTaskStorage)
-    //     print("tb = inqScan\n")
-    // else if (tb == &inqTaskStorage)
-    //     { print("tb = inq\n"); inquiry(); }
-    // else if (tb == &g_tca_taskVars)
-    //     { print("tb = tca\n"); bcs_dummy_task(); }
-    // else if (tb == &aclTaskStorage)
-    //     { print("tb = acl\n"); acl(); }
-    // else if (tb == (void *)0x22539c)
-    //     { print("tb = conntask?\n"); bcs_dummy_task(); }
-    // else if (tb == &afhRssiScanTaskStorage)
-    //     { print("tb = afhRssiScan\n");}
+    if (tb == &pageScanTaskStorage)
+        { print("tb = pageScan\n"); } //pagescan(); }
+    else if (tb == &pageTaskStorage)
+        {print("tb = page\n");  page(); }
+    else if (tb == &inqScanTaskStorage)
+        print("tb = inqScan\n")
+    else if (tb == &inqTaskStorage)
+        { print("tb = inq\n"); inquiry(); }
+    else if (tb == &g_tca_taskVars)
+        { print("tb = tca\n"); bcs_dummy_task(); }
+    else if (tb == &aclTaskStorage)
+        { print("tb = acl\n"); acl(); }
+    else if (tb == (void *)0x22539c)
+        { print("tb = conntask?\n"); bcs_dummy_task(); }
+    else if (tb == &afhRssiScanTaskStorage)
+        { print("tb = afhRssiScan\n");}
 
-    // //LE
-    // else if (tb == &bcsulp_advTaskStorage)
-    //     { print("tb = adv\n"); adv();}
-    // else if (tb == &bcsulp_scanTaskStorage)
-    //     { print("tb = bcsulp_scan\n"); le_scan();}
-    // else if (tb == &bcsulp_initTaskStorage)
-    //     { print("tb = bcsulp_init\n"); le_scan();}//page_fd = 0; pagescan(); page_fd=-1;}
-    // else if (tb == &bcsulp_aclTaskStorage)
-    //     { print("tb = le_conn\n"); le_conn();}
-    // else
-    //     print_var(tb);
+    //LE
+    else if (tb == &bcsulp_advTaskStorage)
+        { print("tb = adv\n"); adv();}
+    else if (tb == &bcsulp_scanTaskStorage)
+        { print("tb = bcsulp_scan\n"); le_scan();}
+    else if (tb == &bcsulp_initTaskStorage)
+        { print("tb = bcsulp_init\n"); le_scan();}//page_fd = 0; pagescan(); page_fd=-1;}
+    else if (tb == &bcsulp_aclTaskStorage)
+        { print("tb = le_conn\n"); le_conn();}
+    else
+        print_var(tb);
 
 
     //Slot01 / Slot11
     if ((pcx_btclk & 3) == 0b01){
-        // print("Slot01\n");
+        print("Slot01\n");
         sr_status =  (tb == &aclTaskStorage) ? 0x1d8 : 0x1c8;
         phy_status = 0x10;
         bluetoothCoreInt_C();
         contextswitch();
     }
     if ((pcx_btclk & 3) == 0b11){
-        // print("Slot11\n");
+        print("Slot11\n");
         sr_status =  (tb == &aclTaskStorage) ? 0x1d8 : 0x1c8;
         phy_status = 0x68;
         bluetoothCoreInt_C();
@@ -211,12 +211,12 @@ void bcs_dma_hook(struct saved_regs *regs, void *arg) {
     if(!((int)arg & BCS_DMA_HOOK_TX)) return;
 
     if ((int)arg & BCS_DMA_HOOK_EIR) {
-        // print("EIR Tx:");
+        print("EIR Tx:");
         data = regs->r0;
         len = regs->r1;
     }
     else {
-        // print("ACL Tx:");
+        print("ACL Tx:");
         hexdump(regs->r0, 32);
         print_var(regs->r0);
         data = *(uint32_t *)(regs->r0 + 16);
@@ -226,12 +226,12 @@ void bcs_dma_hook(struct saved_regs *regs, void *arg) {
     }
 
     //Print Tx Data
-    // hexdump(&tx_pkt_info, 4);
-    // print(" | ");
-    // hexdump(&tx_pkt_pyld_hdr, 2);
-    // print(" | ");
-    // hexdump(data, len);
-    // print("\n");
+    hexdump(&tx_pkt_info, 4);
+    print(" | ");
+    hexdump(&tx_pkt_pyld_hdr, 2);
+    print(" | ");
+    hexdump(data, len);
+    print("\n");
     tx_dma_len = len;
     tx_dma_data = (void *)data;
 }
@@ -392,17 +392,17 @@ extern int eci_status_b;
 void print_bcs_list_entry(void *current_void) {
         uint32_t *current = current_void;
         
-        // print("-----------------------------------\n");
-        // print_var(current);
-        // print_var(current[-1]);
-        // print_var(current[0]); //next
-        // print_var(current[1]); //prev
-        // print_var(current[2]);
-        // print_var(current[3]);
-        // print_var(current[4]);
-        // print_var(current[5]); //end of struct?
-        // print_var(((char*)current)[0x10]);
-        // print_var(((char*)current)[0x11]);
+        print("-----------------------------------\n");
+        print_var(current);
+        print_var(current[-1]);
+        print_var(current[0]); //next
+        print_var(current[1]); //prev
+        print_var(current[2]);
+        print_var(current[3]);
+        print_var(current[4]);
+        print_var(current[5]); //end of struct?
+        print_var(((char*)current)[0x10]);
+        print_var(((char*)current)[0x11]);
 }
 
 extern void * slotCbEntryList;      //Slot Callbacks
@@ -419,81 +419,81 @@ int dlist_count(void *);    //Double linked list len
 void bcs_info() {
     uint32_t *current;
     if (tb) {
-        // print_var(tb);
-        // print_var(bcs_taskGetTaskType(tb));
+        print_var(tb);
+        print_var(bcs_taskGetTaskType(tb));
     }
 
     //print_var(eci_status);
     //print_var(eci_status_b);
-    // print_var(dlist_count(taskTimerList));
-    // print_var(dlist_count(taskTransientStateList));
-    // print_var(dlist_count(taskReadyList));
-    // print_var(dlist_count(taskActiveList));
-    // print_var(dlist_count(slotCbEntryList));
+    print_var(dlist_count(taskTimerList));
+    print_var(dlist_count(taskTransientStateList));
+    print_var(dlist_count(taskReadyList));
+    print_var(dlist_count(taskActiveList));
+    print_var(dlist_count(slotCbEntryList));
 
-    // print("-----------------------------------\n");
-    // print("current_task\n");
-    // print_bcs_list_entry(tb);
+    print("-----------------------------------\n");
+    print("current_task\n");
+    print_bcs_list_entry(tb);
 
-    // print("-----------------------------------\n");
-    // print("active_list\n");
-    // for (current = (uint32_t*) taskActiveList; current != (uint32_t *)&taskActiveList; current = (uint32_t *)current[0])
-    //     print_bcs_list_entry(current);
+    print("-----------------------------------\n");
+    print("active_list\n");
+    for (current = (uint32_t*) taskActiveList; current != (uint32_t *)&taskActiveList; current = (uint32_t *)current[0])
+        print_bcs_list_entry(current);
 
-    // print("-----------------------------------\n");
-    // print("taskTransientStateList\n");
-    // for (current = (uint32_t*) taskTransientStateList; current != (uint32_t *)&taskTransientStateList; current = (uint32_t *)current[0])
-    //     print_bcs_list_entry(current);
+    print("-----------------------------------\n");
+    print("taskTransientStateList\n");
+    for (current = (uint32_t*) taskTransientStateList; current != (uint32_t *)&taskTransientStateList; current = (uint32_t *)current[0])
+        print_bcs_list_entry(current);
 
-    // print("-----------------------------------\n");
-    // print("taskReadyList\n");
-    // for (current = (uint32_t*) taskReadyList; current != (uint32_t *)&taskReadyList; current = (uint32_t *)current[0])
-    //     print_bcs_list_entry(current);
+    print("-----------------------------------\n");
+    print("taskReadyList\n");
+    for (current = (uint32_t*) taskReadyList; current != (uint32_t *)&taskReadyList; current = (uint32_t *)current[0])
+        print_bcs_list_entry(current);
 
 
-    // print("-----------------------------------\n");
-    // print("timer\n")
-    // current = (uint32_t*) taskTimerList;
-    // while (current != (uint32_t *)&taskTimerList) {
-    //     print("-----------------------------------\n");
-    //     print_var(current);
-    //     print_var(current[-2]);
-    //     print_var(current[-1]);
-    //     print_var(current[0]); //next
-    //     print_var(current[1]); //prev
-    //     print_var(current[2]);
-    //     print_var(current[3]);
-    //     print_var(current[4]);
-    //     print_var(current[5]);
-    //     print_var(current[6]);
-    //     print_var(current[7]);
-    //     print_var(current[8]);
-    //     print_var(current[9]); //maybe callback
-    //     print_var(current[10]);
-    //     print_var(current[11]);
-    //     print_var(current[12]);
-    //     print_var(current[13]);
+    print("-----------------------------------\n");
+    print("timer\n")
+    current = (uint32_t*) taskTimerList;
+    while (current != (uint32_t *)&taskTimerList) {
+        print("-----------------------------------\n");
+        print_var(current);
+        print_var(current[-2]);
+        print_var(current[-1]);
+        print_var(current[0]); //next
+        print_var(current[1]); //prev
+        print_var(current[2]);
+        print_var(current[3]);
+        print_var(current[4]);
+        print_var(current[5]);
+        print_var(current[6]);
+        print_var(current[7]);
+        print_var(current[8]);
+        print_var(current[9]); //maybe callback
+        print_var(current[10]);
+        print_var(current[11]);
+        print_var(current[12]);
+        print_var(current[13]);
 
-    //     current = (uint32_t *)current[0];
+        current = (uint32_t *)current[0];
 
-    // }
+    }
 
-    // print("-----------------------------------\n");
-    // print("slotcb\n")
-    // current = (uint32_t*) slotCbEntryList;
-    // while (current != (void *)&slotCbEntryList) {
-    //     print("-----------------------------------\n");
-    //     print_var(current);
-    //     print_var(current[-1]);
-    //     print_var(current[0]);
-    //     print_var(current[1]);
-    //     print_var(current[2]);
-    //     print_var(current[3]);
-    //     print_var(current[4]);
-    //     print_var(current[5]);
-    //     print_var(current[6]);
-    //     current = (uint32_t*)current[0];
-    // }
+    print("-----------------------------------\n");
+    print("slotcb\n")
+    current = (uint32_t*) slotCbEntryList;
+    while (current != (void *)&slotCbEntryList) {
+        print("-----------------------------------\n");
+        print_var(current);
+        print_var(current[-1]);
+        print_var(current[0]);
+        print_var(current[1]);
+        print_var(current[2]);
+        print_var(current[3]);
+        print_var(current[4]);
+        print_var(current[5]);
+        print_var(current[6]);
+        current = (uint32_t*)current[0];
+    }
 
 }
 

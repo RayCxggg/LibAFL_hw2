@@ -18,6 +18,8 @@ class emu:
     """
     def __init__(self, fname, stdin, watchpoints=[], drcov=True, emulator_base=None, fw_entry_symbol="cont"):
         self.stdin = stdin
+        print("here:")
+        print(self.stdin)
         self.exception = ""
         self.uc = Uc(UC_ARCH_ARM, UC_MODE_ARM)
         self.fname = fname
@@ -148,7 +150,7 @@ class emu:
             if self.symbols[name] <= pc and  self.symbols[name] + 8 >= pc:
                 #print name
                 if name == "read":
-                    print("read")
+                    # print("read")
                     fd = uc.reg_read(arm_const.UC_ARM_REG_R0)
                     target = uc.reg_read(arm_const.UC_ARM_REG_R1)
                     size = uc.reg_read(arm_const.UC_ARM_REG_R2)
@@ -160,18 +162,17 @@ class emu:
                     self.uc.reg_write(arm_const.UC_ARM_REG_R0, len(data))
 
                 elif name == "write":
-                    print("write")
                     fd = uc.reg_read(arm_const.UC_ARM_REG_R0)
                     target = uc.reg_read(arm_const.UC_ARM_REG_R1)
                     size = uc.reg_read(arm_const.UC_ARM_REG_R2)
 
                     data = uc.mem_read(target, size)
                     if fd == 1:
-                        self.stdout += data.decode("utf-8")
-                        sys.stdout.write(data.decode("utf-8"))
+                        self.stdout += data.decode("utf-8", "ignore")
+                        sys.stdout.write(data.decode("utf-8", "ignore"))
                     else:
-                        self.stderr += data.decode("utf-8")
-                        sys.stderr.write(data.decode("utf-8"))
+                        self.stderr += data.decode("utf-8", "ignore")
+                        sys.stderr.write(data.decode("utf-8", "ignore"))
 
                 else:
                     print("unknown intr")

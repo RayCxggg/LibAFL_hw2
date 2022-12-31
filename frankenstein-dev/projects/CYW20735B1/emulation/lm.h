@@ -34,48 +34,48 @@ void lm_hook(struct saved_regs *regs, void *arg) {
     if (lm_cmd->type == 0xc) return;
 
     //inthexdump(regs->r0, 8);
-    // print("lr = ");
-    // print_ptr(regs->lr);
-    // print(" lm_sendCmd(");
-    // print_ptr(lm_cmd->type);
-    // print(" | ");
-    // print_ptr(lm_cmd->maybe_subtype);
-    // print(" | ");
-    // print_ptr(lm_cmd->arg);
-    // print(");\n");
+    print("lr = ");
+    print_ptr(regs->lr);
+    print(" lm_sendCmd(");
+    print_ptr(lm_cmd->type);
+    print(" | ");
+    print_ptr(lm_cmd->maybe_subtype);
+    print(" | ");
+    print_ptr(lm_cmd->arg);
+    print(");\n");
 
     //lmulp_handleRxLcp
     if (lm_cmd->type == 0xe) {
         lcp = lm_cmd->arg;
-        // print("LCP: ");
-        // hexdump(lm_cmd->arg, 16); //hdr
-        // hexdump(lcp->data, lcp->len);
+        print("LCP: ");
+        hexdump(lm_cmd->arg, 16); //hdr
+        hexdump(lcp->data, lcp->len);
     }
 }
 
 
 void lmp_rx_hook(struct saved_regs *regs, void *arg) {
-    // print("lr = ");
-    // print_ptr(regs->lr);
-    // print(" lm_LmpReceived(");
-    // print_ptr(regs->r0);
-    // print(", ");
-    // hexdump(regs->r1, 4);
-    // print(" | ");
-    // hexdump(regs->r1 + 4, 24);
-    // print(");\n");
+    print("lr = ");
+    print_ptr(regs->lr);
+    print(" lm_LmpReceived(");
+    print_ptr(regs->r0);
+    print(", ");
+    hexdump(regs->r1, 4);
+    print(" | ");
+    hexdump(regs->r1 + 4, 24);
+    print(");\n");
 }
 
 void lmp_tx_hook(struct saved_regs *regs, void *arg) {
-    // print("lr = ");
-    // print_ptr(regs->lr);
-    // print(" DHM_LMPTx(");
-    // print_ptr(regs->r0);
-    // print(", ");
-    // hexdump(regs->r1, 12);
-    // print(" | ");
-    // hexdump(regs->r1 +12, 19);
-    // print(");\n");
+    print("lr = ");
+    print_ptr(regs->lr);
+    print(" DHM_LMPTx(");
+    print_ptr(regs->r0);
+    print(", ");
+    hexdump(regs->r1, 12);
+    print(" | ");
+    hexdump(regs->r1 +12, 19);
+    print(");\n");
 }
 
 
